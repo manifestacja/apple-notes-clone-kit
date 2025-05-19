@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Folder as FolderIcon, Plus, ChevronRight, ChevronDown, Trash2 } from 'lucide-react';
+import { Folder as FolderIcon, Plus, ChevronRight, ChevronDown, Trash2, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNotes, Folder } from '@/context/NotesContext';
 import { Button } from '@/components/ui/button';
@@ -8,10 +8,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from '@/components/ui/input';
 
 export const NotesSidebar = () => {
-  const { folders, activeFolder, setActiveFolder, createFolder, deleteFolder, createNote } = useNotes();
+  const { folders, notes, activeFolder, setActiveFolder, createFolder, deleteFolder, createNote } = useNotes();
   const [newFolderName, setNewFolderName] = useState('');
   const [isFoldersOpen, setIsFoldersOpen] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Oblicz liczbę ulubionych notatek
+  const favoritesCount = notes.filter(note => note.favorite).length;
 
   const handleCreateFolder = () => {
     if (newFolderName.trim()) {
@@ -25,7 +28,7 @@ export const NotesSidebar = () => {
     <div className="h-full bg-sidebar border-r border-sidebar-border">
       <div className="p-4 flex flex-col h-full">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold">Notes</h2>
+          <h2 className="text-lg font-semibold">Notatki</h2>
           <Button 
             variant="ghost" 
             size="icon" 
@@ -36,16 +39,30 @@ export const NotesSidebar = () => {
           </Button>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-4 space-y-1">
           <div 
             className={cn(
-              "px-2 py-1.5 mb-1 rounded-md flex items-center cursor-pointer",
+              "px-2 py-1.5 rounded-md flex items-center cursor-pointer",
               activeFolder === 'all' ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/50"
             )}
             onClick={() => setActiveFolder('all')}
           >
             <FolderIcon className="h-4 w-4 mr-2" />
-            <span>All Notes</span>
+            <span>Wszystkie notatki</span>
+            <span className="ml-auto text-xs text-muted-foreground">{notes.length}</span>
+          </div>
+          
+          {/* Nowy element - Ulubione */}
+          <div 
+            className={cn(
+              "px-2 py-1.5 rounded-md flex items-center cursor-pointer",
+              activeFolder === 'favorites' ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/50"
+            )}
+            onClick={() => setActiveFolder('favorites')}
+          >
+            <Star className="h-4 w-4 mr-2 text-yellow-400" />
+            <span>Ulubione</span>
+            <span className="ml-auto text-xs text-muted-foreground">{favoritesCount}</span>
           </div>
         </div>
 
@@ -59,7 +76,7 @@ export const NotesSidebar = () => {
             ) : (
               <ChevronRight className="h-4 w-4 mr-1" />
             )}
-            <span className="text-sm font-medium">Folders</span>
+            <span className="text-sm font-medium">Foldery</span>
           </div>
 
           {isFoldersOpen && (
@@ -73,11 +90,14 @@ export const NotesSidebar = () => {
                   )}
                   onClick={() => setActiveFolder(folder.id)}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center flex-1">
                     <FolderIcon className="h-4 w-4 mr-2" />
-                    <span className="text-sm">{folder.name}</span>
+                    <span className="text-sm truncate">{folder.name}</span>
+                    <span className="ml-auto text-xs text-muted-foreground mr-2">
+                      {notes.filter(note => note.folderId === folder.id).length}
+                    </span>
                   </div>
-                  {folder.id !== 'all' && folder.id !== 'folder-1' && folder.id !== 'folder-2' && (
+                  {folder.id !== 'folder-1' && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -99,16 +119,16 @@ export const NotesSidebar = () => {
                     className="px-2 py-1.5 rounded-md flex items-center text-sm text-muted-foreground hover:bg-sidebar-accent/50 cursor-pointer"
                   >
                     <Plus className="h-3 w-3 mr-2" />
-                    <span>New Folder</span>
+                    <span>Nowy folder</span>
                   </div>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Create New Folder</DialogTitle>
+                    <DialogTitle>Utwórz nowy folder</DialogTitle>
                   </DialogHeader>
                   <div className="py-4">
                     <Input 
-                      placeholder="Folder name" 
+                      placeholder="Nazwa folderu" 
                       value={newFolderName}
                       onChange={(e) => setNewFolderName(e.target.value)}
                     />
@@ -118,9 +138,9 @@ export const NotesSidebar = () => {
                       variant="outline" 
                       onClick={() => setDialogOpen(false)}
                     >
-                      Cancel
+                      Anuluj
                     </Button>
-                    <Button onClick={handleCreateFolder}>Create</Button>
+                    <Button onClick={handleCreateFolder}>Utwórz</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

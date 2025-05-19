@@ -1,14 +1,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNotes } from '@/context/NotesContext';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export const NoteEditor = () => {
-  const { activeNote, updateNote, setActiveNote } = useNotes();
+  const { activeNote, updateNote, setActiveNote, toggleFavorite } = useNotes();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const isMobile = useIsMobile();
@@ -38,9 +38,9 @@ export const NoteEditor = () => {
     return (
       <div className="h-full flex items-center justify-center p-8 text-center">
         <div className="max-w-md">
-          <h2 className="text-2xl font-semibold mb-2">No Note Selected</h2>
+          <h2 className="text-2xl font-semibold mb-2">Nie wybrano notatki</h2>
           <p className="text-muted-foreground mb-6">
-            Select a note from the list or create a new one to get started
+            Wybierz notatkę z listy lub utwórz nową, aby rozpocząć
           </p>
         </div>
       </div>
@@ -49,7 +49,7 @@ export const NoteEditor = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return format(date, 'MMMM d, yyyy h:mm a');
+    return format(date, 'dd MMMM yyyy HH:mm');
   };
 
   return (
@@ -68,9 +68,17 @@ export const NoteEditor = () => {
             <ChevronLeft className="h-5 w-5" />
           </Button>
         )}
-        <div className="text-sm text-muted-foreground">
-          Edited {formatDate(activeNote.updatedAt)}
+        <div className="text-sm text-muted-foreground flex-1">
+          Edytowano {formatDate(activeNote.updatedAt)}
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-2"
+          onClick={() => activeNote && toggleFavorite(activeNote.id)}
+        >
+          <Star className={cn("h-5 w-5", activeNote.favorite && "fill-yellow-400 text-yellow-400")} />
+        </Button>
       </div>
       
       <div className="flex-1 overflow-auto p-6">
@@ -79,14 +87,14 @@ export const NoteEditor = () => {
             type="text"
             value={title}
             onChange={handleTitleChange}
-            placeholder="Note title"
+            placeholder="Tytuł notatki"
             className="w-full text-3xl font-semibold bg-transparent border-none outline-none mb-6 p-0 focus:ring-0"
           />
           
           <textarea
             value={content}
             onChange={handleContentChange}
-            placeholder="Start writing..."
+            placeholder="Zacznij pisać..."
             className="w-full min-h-[calc(100vh-220px)] text-lg bg-transparent border-none outline-none resize-none p-0 focus:ring-0"
           />
         </div>
