@@ -30,6 +30,8 @@ export const NotesList = () => {
   // Filtruj notatki na podstawie aktywnego folderu
   let filteredNotes = activeFolder === 'all' 
     ? notes 
+    : activeFolder === 'favorites'
+    ? notes.filter(note => note.favorite)
     : notes.filter(note => note.folderId === activeFolder);
   
   // Jeśli wyszukujemy, pokazujemy wyniki wyszukiwania
@@ -38,7 +40,9 @@ export const NotesList = () => {
   }
 
   // Pobierz nazwę folderu
-  const folderName = folders.find(folder => folder.id === activeFolder)?.name || 'Wszystkie notatki';
+  const folderName = activeFolder === 'favorites' 
+    ? 'Ulubione'
+    : folders.find(folder => folder.id === activeFolder)?.name || 'Wszystkie notatki';
 
   // Format daty
   const formatDate = (dateString: string) => {

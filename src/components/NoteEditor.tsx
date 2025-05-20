@@ -55,7 +55,8 @@ export const NoteEditor = () => {
   return (
     <div className={cn(
       "h-full flex flex-col",
-      isMobile && !activeNote && "hidden"
+      isMobile && !activeNote && "hidden",
+      isMobile && activeNote && "absolute inset-0 z-20 bg-background"
     )}>
       <div className="p-4 border-b border-border flex items-center">
         {isMobile && (
